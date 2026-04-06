@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Confidence Intervals | Jordan D. Hillman</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-section: #f0f0f0;
+            --text: #444;
+            --text-secondary: #555;
+            --text-muted: #999;
+            --border: #bbb;
+            --select-bg: #e8e8e8;
+            --accent: rgba(160,80,80,0.8);
+            --accent-light: rgba(160,80,80,0.12);
+            --tag-bg: #f5f5f5;
+            --formula-bg: #2a2a2a;
+            --formula-text: #d0d0d0;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --bg-section: #2a2a2a;
+            --text: #d0d0d0;
+            --text-secondary: #ccc;
+            --text-muted: #999;
+            --border: #444;
+            --select-bg: #2a2a2a;
+            --accent: rgba(200,100,100,0.85);
+            --accent-light: rgba(200,100,100,0.15);
+            --tag-bg: #333;
+            --formula-bg: #111;
+            --formula-text: #d0d0d0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            margin-bottom: 2rem;
+        }
+
+        nav .nav-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--select-bg);
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        /* Story box — matches the metadata/tag style with left border */
+        .story-box {
+            padding: 0.8rem 1rem;
+            border-left: 3px solid var(--accent);
+            background: var(--tag-bg);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 3rem;
+        }
+
+        .story-box strong {
+            color: var(--text);
+        }
+
+        /* Formula box */
+        .formula-box {
+            background: var(--formula-bg);
+            color: var(--formula-text);
+            padding: 1.2rem 1.5rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .formula-box .formula-label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+
+        .formula-box .formula {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .formula-box .formula span {
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 0 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .formula-box .formula span:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            display: inline-block;
+        }
+
+        .formula-point { background: rgba(200,100,100,0.35); }
+        .formula-point:hover, .formula-point.active { background: rgba(200,100,100,0.7); }
+        .formula-z { background: rgba(200,180,80,0.3); }
+        .formula-z:hover, .formula-z.active { background: rgba(200,180,80,0.6); }
+        .formula-se { background: rgba(100,160,100,0.3); }
+        .formula-se:hover, .formula-se.active { background: rgba(100,160,100,0.6); }
+
+        .formula-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 10px;
+            font-size: 0.82rem;
+            opacity: 0.6;
+        }
+
+        .formula-legend span {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .formula-legend span:hover {
+            opacity: 1;
+        }
+
+        .formula-tooltip {
+            margin-top: 12px;
+            padding: 0.8rem 1rem;
+            border-radius: 3px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            text-align: left;
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .formula-tooltip.show {
+            display: block;
+        }
+
+        .formula-tooltip.tip-point {
+            background: rgba(200,100,100,0.2);
+            border-left: 3px solid rgba(200,100,100,0.7);
+        }
+
+        .formula-tooltip.tip-z {
+            background: rgba(200,180,80,0.15);
+            border-left: 3px solid rgba(200,180,80,0.6);
+        }
+
+        .formula-tooltip.tip-se {
+            background: rgba(100,160,100,0.15);
+            border-left: 3px solid rgba(100,160,100,0.6);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Controls */
+        .controls {
+            background: var(--bg-section);
+            padding: 1.5rem;
+            border-radius: 0 0 4px 4px;
+            border: 1px solid var(--border);
+            border-top: none;
+            margin-bottom: 3rem;
+        }
+
+        .controls-mid {
+            background: var(--bg-section);
+            padding: 0.8rem 1.5rem;
+            border-radius: 0;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-bottom: none;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .control-label label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+
+        .control-label .value-display {
+            background: var(--select-bg);
+            padding: 0.25rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+
+        .slider-explain {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-style: italic;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+        }
+
+        input[type="range"]:focus {
+            outline: 1px solid #555;
+        }
+
+        /* CI buttons — styled like the select elements on the site */
+        .ci-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .ci-btn {
+            flex: 1;
+            padding: 0.35rem 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--select-bg);
+            font-family: Arial, sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .ci-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .ci-btn:focus {
+            outline: 1px solid #555;
+        }
+
+        .ci-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            color: var(--text);
+        }
+
+        /* Visualization */
+        .viz-container {
+            background: var(--bg-section);
+            border: 1px solid var(--border);
+            border-radius: 4px 4px 0 0;
+            border-bottom: none;
+            padding: 10px 20px 8px;
+            margin-bottom: 0;
+        }
+
+        .viz-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .number-line-area {
+            position: relative;
+            height: 120px;
+            margin: 10px 40px 0;
+            overflow: hidden;
+        }
+
+        .number-line {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .tick {
+            position: absolute;
+            top: 62px;
+            width: 1px;
+            height: 18px;
+            background: var(--text-muted);
+        }
+
+        .tick-label {
+            position: absolute;
+            top: 86px;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: Arial, sans-serif;
+        }
+
+        .ci-bar {
+            position: absolute;
+            top: 56px;
+            height: 30px;
+            border-radius: 2px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.15;
+        }
+
+        .ci-bar-90 { background: rgba(100,160,100,0.8); }
+        .ci-bar-95 { background: var(--accent); }
+        .ci-bar-99 { background: rgba(120,100,160,0.8); }
+
+        .ci-bar.active {
+            opacity: 0.4;
+        }
+
+        .ci-bracket {
+            position: absolute;
+            top: 38px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bracket-left {
+            transform: translateX(-100%);
+        }
+
+        .bracket-right {
+            transform: translateX(0%);
+        }
+
+        .point-estimate {
+            position: absolute;
+            top: 48px;
+            width: 14px;
+            height: 14px;
+            margin-left: -7px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--bg);
+            z-index: 10;
+            transition: left 0.3s;
+        }
+
+        .point-label {
+            position: absolute;
+            top: 22px;
+            transform: translateX(-50%);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            transition: left 0.3s;
+        }
+
+        /* Legend — matches site's chart legend style */
+        .viz-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-line {
+            width: 24px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        .legend-line-90 { background: rgba(100,160,100,0.8); }
+        .legend-line-95 { background: var(--accent); }
+        .legend-line-99 { background: rgba(120,100,160,0.8); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+        /* Result box — tag/metadata style */
+        .result-box {
+            padding: 0.8rem 1rem;
+            border-left: 3px solid var(--accent);
+            background: var(--tag-bg);
+            transition: all 0.3s;
+        }
+
+        .result-main {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .result-explain {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* Takeaways */
+        .takeaways {
+            list-style: none;
+            padding: 0;
+        }
+
+        .takeaways li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .takeaways li:last-child {
+            border-bottom: none;
+        }
+
+        .takeaways li strong {
+            color: var(--text);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            padding: 2rem 0 1rem;
+            border-top: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        /* Z/t Reference Table */
+        .ref-table-wrapper {
+            margin-bottom: 3rem;
+        }
+
+        .table-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--select-bg);
+            font-family: Arial, sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0;
+        }
+
+        .table-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        .toggle-arrow {
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+        }
+
+        .table-toggle.open .toggle-arrow {
+            transform: rotate(90deg);
+        }
+
+        .table-collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .table-collapsible.open {
+            max-height: 800px;
+            margin-top: 0.8rem;
+        }
+
+        .ref-table-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .ref-table-explain {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 0.8rem;
+        }
+
+        .ref-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .ref-table th,
+        .ref-table td {
+            padding: 0.5rem 0.8rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .ref-table th {
+            background: var(--bg-section);
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .ref-table td {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .ref-table tr.active-row td {
+            background: var(--accent-light);
+            font-weight: 700;
+        }
+
+        .ref-table .col-label {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .ref-table-note {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        /* Practice Quiz */
+        .quiz-section {
+            margin-bottom: 3rem;
+        }
+
+        .quiz-section .section-title {
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-progress {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .quiz-question {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .quiz-options {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-option {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--select-bg);
+            font-family: Arial, sans-serif;
+            font-size: 0.88rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent);
+        }
+
+        .quiz-option.correct {
+            border-color: rgba(100,160,100,0.8);
+            background: rgba(100,160,100,0.15);
+        }
+
+        .quiz-option.incorrect {
+            border-color: rgba(200,80,80,0.8);
+            background: rgba(200,80,80,0.12);
+        }
+
+        .quiz-option:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .quiz-option:disabled:hover {
+            border-color: var(--border);
+        }
+
+        .quiz-option.correct:disabled,
+        .quiz-option.incorrect:disabled {
+            opacity: 1;
+        }
+
+        .quiz-feedback {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            padding: 0.6rem 0.8rem;
+            border-left: 3px solid var(--border);
+            background: var(--tag-bg);
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.is-correct {
+            border-left-color: rgba(100,160,100,0.8);
+        }
+
+        .quiz-feedback.is-incorrect {
+            border-left-color: rgba(200,80,80,0.8);
+        }
+
+        .quiz-complete {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--tag-bg);
+            border-left: 3px solid rgba(100,160,100,0.8);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .quiz-complete strong {
+            color: var(--text);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.4rem; }
+            .ci-buttons { flex-direction: column; gap: 0.5rem; }
+            .number-line-area { margin: 40px 20px 0; }
+            .formula-legend { flex-direction: column; gap: 0.3rem; }
+            .ref-table { font-size: 0.78rem; }
+            .ref-table th, .ref-table td { padding: 0.35rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-inner">
+            <a href="https://jordandhillman.com">jordandhillman.com</a>
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">&#9789;</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Introduction to Confidence Intervals</h1>
+        <p class="subtitle">How sure can we be about our estimate?</p>
+
+        <!-- Story -->
+        <div class="story-box">
+            <strong>Imagine this:</strong> You want to know the average exam score for <em>every student in the school</em>.
+            But you can't ask everyone &mdash; that would take forever! So you ask a smaller group and use their
+            average as your best guess. A <strong>confidence interval</strong> is like saying:
+            <em>"I'm pretty sure the real answer is somewhere in this range."</em>
+            <br><br>
+            The wider the range, the more sure you can be it contains the truth. The narrower the range,
+            the more precise &mdash; but the less sure. <strong>Play with the controls below to see how it works!</strong>
+        </div>
+
+        <!-- Formula -->
+        <div class="formula-box">
+            <div class="formula-label">The Confidence Interval Formula</div>
+            <div class="formula">
+                <span class="formula-point" onclick="showFormulaTip('point')">Estimate</span> &plusmn; <span class="formula-z" onclick="showFormulaTip('z')">Z-value</span> &times; <span class="formula-se" onclick="showFormulaTip('se')">SD / &radic;n</span>
+            </div>
+            <div class="formula-legend">
+                <span onclick="showFormulaTip('point')">Our best guess</span>
+                <span onclick="showFormulaTip('z')">How confident</span>
+                <span onclick="showFormulaTip('se')">Standard Error</span>
+            </div>
+            <div class="formula-tooltip tip-point" id="tipPoint">
+                <strong>The Estimate (Point Estimate)</strong><br>
+                This is the average exam score from the students we actually asked &mdash; our single best guess for the true average. In our example, we surveyed a group and got an average of 78. It's the center of our confidence interval. The more students we ask, the closer this number tends to be to the real answer.
+            </div>
+            <div class="formula-tooltip tip-z" id="tipZ">
+                <strong>The Z-value (Critical Value)</strong><br>
+                This number comes from the normal distribution table and controls how confident we want to be. A higher confidence level means a bigger Z-value, which stretches the interval wider. For 90% confidence it's 1.645, for 95% it's 1.960, and for 99% it's 2.576. Think of it as a "confidence multiplier" &mdash; the more sure you want to be, the bigger the multiplier.
+            </div>
+            <div class="formula-tooltip tip-se" id="tipSE">
+                <strong>Standard Error (SD / &radic;n)</strong><br>
+                The standard error tells us how much our sample average is likely to wiggle from sample to sample. It comes from two things: the <strong>standard deviation</strong> (how spread out individual scores are) divided by the <strong>square root of the sample size</strong>. This is why collecting more data helps &mdash; a bigger n means a smaller standard error, which means a narrower interval.
+            </div>
+        </div>
+
+        <!-- Z/t Reference Table -->
+        <div class="ref-table-wrapper">
+            <button class="table-toggle" id="tableToggle" onclick="document.getElementById('tableContent').classList.toggle('open'); this.classList.toggle('open');">
+                Critical Values Reference Table
+                <span class="toggle-arrow">&#9654;</span>
+            </button>
+            <div class="table-collapsible" id="tableContent">
+            <div class="ref-table-explain">This is where the Z-value in the formula comes from. The row matching your selected confidence level is highlighted.</div>
+            <table class="ref-table">
+                <thead>
+                    <tr>
+                        <th>Confidence Level</th>
+                        <th>Significance (&alpha;)</th>
+                        <th>Tail Area (&alpha;/2)</th>
+                        <th>Z* (Critical Value)</th>
+                        <th>Meaning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="tableRow90">
+                        <td class="col-label">90%</td>
+                        <td>0.10</td>
+                        <td>0.05</td>
+                        <td>1.645</td>
+                        <td>We allow a 10% chance of being wrong</td>
+                    </tr>
+                    <tr id="tableRow95">
+                        <td class="col-label">95%</td>
+                        <td>0.05</td>
+                        <td>0.025</td>
+                        <td>1.960</td>
+                        <td>We allow a 5% chance of being wrong</td>
+                    </tr>
+                    <tr id="tableRow99">
+                        <td class="col-label">99%</td>
+                        <td>0.01</td>
+                        <td>0.005</td>
+                        <td>2.576</td>
+                        <td>We allow a 1% chance of being wrong</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="ref-table" style="margin-top: 1.5rem;">
+                <thead>
+                    <tr>
+                        <th>df</th>
+                        <th>t* at 90%</th>
+                        <th>t* at 95%</th>
+                        <th>t* at 99%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="tRow5"><td class="col-label">5</td><td>2.015</td><td>2.571</td><td>4.032</td></tr>
+                    <tr id="tRow10"><td class="col-label">10</td><td>1.812</td><td>2.228</td><td>3.169</td></tr>
+                    <tr id="tRow15"><td class="col-label">15</td><td>1.753</td><td>2.131</td><td>2.947</td></tr>
+                    <tr id="tRow20"><td class="col-label">20</td><td>1.725</td><td>2.086</td><td>2.845</td></tr>
+                    <tr id="tRow25"><td class="col-label">25</td><td>1.708</td><td>2.060</td><td>2.787</td></tr>
+                    <tr id="tRow30"><td class="col-label">30</td><td>1.697</td><td>2.042</td><td>2.750</td></tr>
+                    <tr id="tRow50"><td class="col-label">50</td><td>1.676</td><td>2.009</td><td>2.678</td></tr>
+                    <tr id="tRow100"><td class="col-label">100</td><td>1.660</td><td>1.984</td><td>2.626</td></tr>
+                    <tr id="tRowInf"><td class="col-label">&infin;</td><td>1.645</td><td>1.960</td><td>2.576</td></tr>
+                </tbody>
+            </table>
+            <div class="ref-table-note">
+                <strong>Z vs. t:</strong> The top table shows Z* values (used when the sample is large, roughly n &gt; 30). The bottom table shows t* values, which depend on <em>degrees of freedom</em> (df = n &minus; 1). Notice how t* values get closer to Z* as df increases &mdash; with a big enough sample, they're practically the same!
+            </div>
+            </div>
+        </div>
+
+        <!-- Visualization (top) -->
+        <div class="viz-container">
+            <div class="viz-title">The Confidence Interval for Average Exam Score</div>
+            <div class="number-line-area" id="vizContainer">
+                <div class="ci-bar ci-bar-99" id="ciBar99"></div>
+                <div class="ci-bar ci-bar-95" id="ciBar95"></div>
+                <div class="ci-bar ci-bar-90" id="ciBar90"></div>
+
+                <div class="ci-bracket bracket-left" id="bracketLeft"></div>
+                <div class="ci-bracket bracket-right" id="bracketRight"></div>
+
+                <div class="point-label" id="pointLabel">78 points</div>
+                <div class="point-estimate" id="pointDot"></div>
+
+                <div class="number-line"></div>
+            </div>
+
+            <div class="viz-legend">
+                <div class="legend-item"><div class="legend-dot"></div> Point Estimate</div>
+                <div class="legend-item" id="legendCI"><div class="legend-line legend-line-95"></div> <span id="legendCILabel">95% CI</span></div>
+            </div>
+
+        </div>
+
+        <!-- CI Buttons (middle) -->
+        <div class="controls-mid">
+            <div class="control-group">
+                <div class="control-label">
+                    <label>How Sure Do You Want to Be?</label>
+                </div>
+                <div class="slider-explain">More sure = wider range. It's a tradeoff!</div>
+                <div class="ci-buttons">
+                    <button class="ci-btn active" data-level="90" id="btn90">90%</button>
+                    <button class="ci-btn active" data-level="95" id="btn95">95%</button>
+                    <button class="ci-btn" data-level="99" id="btn99">99%</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sliders (bottom) -->
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-label">
+                    <label for="sampleSize">Number of Students Asked</label>
+                    <span class="value-display" id="sampleSizeDisplay">30</span>
+                </div>
+                <div class="slider-explain">More students = more reliable guess</div>
+                <input type="range" id="sampleSize" min="5" max="200" value="30" step="1">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">
+                    <label for="stdError">Standard Deviation (how spread out the scores are)</label>
+                    <span class="value-display" id="sdDisplay">5.0</span>
+                </div>
+                <div class="slider-explain">Higher = scores are all over the place. Lower = everyone scored similarly.</div>
+                <input type="range" id="stdError" min="0.5" max="30" value="5" step="0.1">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                    <span style="font-size:0.72rem;color:var(--text-muted);font-style:italic;">Standard Error (SD / &radic;n):</span>
+                    <span class="value-display" id="seCalcDisplay">0.91</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div class="section">
+            <button class="table-toggle" id="resultToggle" onclick="document.getElementById('resultContent').classList.toggle('open'); this.classList.toggle('open');">
+                <span>In plain English:</span>
+                <span class="toggle-arrow">&#9654;</span>
+            </button>
+            <div class="table-collapsible" id="resultContent">
+                <div class="result-box" id="resultBox">
+                    <div class="result-explain" id="resultExplain"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Takeaways -->
+        <div class="section">
+            <button class="table-toggle" onclick="document.getElementById('takeawaysContent').classList.toggle('open'); this.classList.toggle('open');">
+                Key Takeaways (Try It Yourself!)
+                <span class="toggle-arrow">&#9654;</span>
+            </button>
+            <div class="table-collapsible" id="takeawaysContent">
+                <ul class="takeaways">
+                    <li><strong>Ask more students &rarr; narrower interval.</strong> The more people you ask, the better your guess. Try dragging the sample size slider to the right!</li>
+                    <li><strong>More variation in scores &rarr; wider interval.</strong> If some students got 20 and others got 100, it's harder to pin down the average. Try increasing the standard error!</li>
+                    <li><strong>More confidence &rarr; wider interval.</strong> Saying "I'm 99% sure" requires casting a wider net than "I'm 90% sure." Try switching between the confidence level buttons!</li>
+                    <li><strong>It's always a tradeoff.</strong> You can be very precise OR very confident, but not both at the same time (unless you get more data!).</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Practice Quiz -->
+        <div class="quiz-section" id="quizSection">
+            <div class="section-title">Practice Questions</div>
+            <div class="quiz-progress" id="quizProgress">Question 1 of 5</div>
+            <div class="quiz-question" id="quizQuestion"></div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div class="quiz-feedback" id="quizFeedback"></div>
+            <div class="quiz-complete" id="quizComplete">
+                <strong>You answered all 5 questions!</strong><br>
+                Score: <span id="quizScore"></span> / 5
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Jordan D. Hillman
+    </footer>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Check system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '&#9788;';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            if (current === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                themeToggle.innerHTML = '&#9789;';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '&#9788;';
+            }
+        });
+
+        // CI Configuration
+        const POINT_ESTIMATE = 78;
+        const SCALE_MIN = 40;
+        const SCALE_MAX = 116;
+        const SCALE_RANGE = SCALE_MAX - SCALE_MIN;
+
+        const Z_VALUES = {
+            90: 1.645,
+            95: 1.960,
+            99: 2.576
+        };
+
+        let currentLevel = 95;
+
+        // DOM elements
+        const sampleSlider = document.getElementById('sampleSize');
+        const seSlider = document.getElementById('stdError');
+        const sampleDisplay = document.getElementById('sampleSizeDisplay');
+        const seDisplay = document.getElementById('stdErrorDisplay');
+        const btn90 = document.getElementById('btn90');
+        const btn95 = document.getElementById('btn95');
+        const btn99 = document.getElementById('btn99');
+        const resultBox = document.getElementById('resultBox');
+        const resultExplain = document.getElementById('resultExplain');
+        const vizContainer = document.getElementById('vizContainer');
+
+        function scoreToPercent(score) {
+            return ((score - SCALE_MIN) / SCALE_RANGE) * 100;
+        }
+
+        function computeCI(level, sd, n) {
+            const z = Z_VALUES[level];
+            const se = sd / Math.sqrt(n);
+            const margin = z * se;
+            return {
+                lower: POINT_ESTIMATE - margin,
+                upper: POINT_ESTIMATE + margin,
+                margin: margin,
+                se: se,
+                z: z
+            };
+        }
+
+        function updateViz() {
+            const se = parseFloat(seSlider.value);
+            const n = parseInt(sampleSlider.value);
+
+            sampleDisplay.textContent = n;
+            document.getElementById('sdDisplay').textContent = se.toFixed(1);
+            document.getElementById('seCalcDisplay').textContent = (se / Math.sqrt(n)).toFixed(2);
+
+            const pointPct = scoreToPercent(POINT_ESTIMATE);
+            document.getElementById('pointDot').style.left = pointPct + '%';
+            document.getElementById('pointLabel').style.left = pointPct + '%';
+            document.getElementById('pointLabel').textContent = POINT_ESTIMATE + ' points';
+
+            [90, 95, 99].forEach(level => {
+                const ci = computeCI(level, se, n);
+                const bar = document.getElementById('ciBar' + level);
+                const leftPct = Math.max(scoreToPercent(ci.lower), -10);
+                const rightPct = Math.min(scoreToPercent(ci.upper), 110);
+
+                bar.style.left = leftPct + '%';
+                bar.style.width = (rightPct - leftPct) + '%';
+
+                if (level === currentLevel) {
+                    bar.classList.add('active');
+                    bar.style.display = 'block';
+                } else {
+                    bar.classList.remove('active');
+                    bar.style.display = 'none';
+                }
+            });
+
+            // Update legend to match current level
+            var legendLine = document.querySelector('#legendCI .legend-line');
+            legendLine.className = 'legend-line legend-line-' + currentLevel;
+            document.getElementById('legendCILabel').textContent = currentLevel + '% CI';
+
+            const activeCi = computeCI(currentLevel, se, n);
+            const leftPct = Math.max(scoreToPercent(activeCi.lower), -10);
+            const rightPct = Math.min(scoreToPercent(activeCi.upper), 110);
+
+            const bracketLeft = document.getElementById('bracketLeft');
+            const bracketRight = document.getElementById('bracketRight');
+            bracketLeft.style.left = leftPct + '%';
+            bracketLeft.textContent = activeCi.lower.toFixed(1);
+            bracketRight.style.left = rightPct + '%';
+            bracketRight.textContent = activeCi.upper.toFixed(1);
+
+            const width = (activeCi.upper - activeCi.lower).toFixed(1);
+            resultExplain.innerHTML =
+                '<strong>' + currentLevel + '% Confident: The average is between ' + activeCi.lower.toFixed(1) + ' and ' + activeCi.upper.toFixed(1) + '</strong><br><br>' +
+                'We asked <strong>' + n + ' students</strong> and their average was <strong>' + POINT_ESTIMATE + '</strong>. ' +
+                'With a standard deviation of <strong>' + se.toFixed(1) + '</strong>, the standard error is <strong>' + activeCi.se.toFixed(2) + '</strong> (' + se.toFixed(1) + ' / &radic;' + n + '). ' +
+                'Our ' + currentLevel + '% confidence interval is <strong>' + width + ' points wide</strong>.<br><br>' +
+                '<em>In even simpler terms: "We\'re ' + currentLevel + '% sure the real class average is somewhere between ' + activeCi.lower.toFixed(1) + ' and ' + activeCi.upper.toFixed(1) + '."</em>';
+
+            updateTicks();
+            highlightTableRows();
+        }
+
+        function updateTicks() {
+            document.querySelectorAll('.tick, .tick-label').forEach(el => el.remove());
+
+            const step = 10;
+            for (let score = SCALE_MIN; score <= SCALE_MAX; score += step) {
+                const pct = scoreToPercent(score);
+
+                const tick = document.createElement('div');
+                tick.className = 'tick';
+                tick.style.left = pct + '%';
+                vizContainer.appendChild(tick);
+
+                const label = document.createElement('div');
+                label.className = 'tick-label';
+                label.style.left = pct + '%';
+                label.textContent = score;
+                vizContainer.appendChild(label);
+            }
+        }
+
+        function highlightTableRows() {
+            // Highlight Z table row
+            ['tableRow90', 'tableRow95', 'tableRow99'].forEach(id => {
+                document.getElementById(id).classList.remove('active-row');
+            });
+            document.getElementById('tableRow' + currentLevel).classList.add('active-row');
+
+            // Highlight closest t table row based on df = n - 1
+            const n = parseInt(sampleSlider.value);
+            const df = n - 1;
+            const tDfs = [5, 10, 15, 20, 25, 30, 50, 100];
+            const tIds = ['tRow5', 'tRow10', 'tRow15', 'tRow20', 'tRow25', 'tRow30', 'tRow50', 'tRow100', 'tRowInf'];
+
+            tIds.forEach(id => document.getElementById(id).classList.remove('active-row'));
+
+            if (df >= 100) {
+                document.getElementById('tRowInf').classList.add('active-row');
+            } else {
+                let closest = 'tRow5';
+                for (let i = 0; i < tDfs.length; i++) {
+                    if (df >= tDfs[i]) closest = 'tRow' + tDfs[i];
+                }
+                document.getElementById(closest).classList.add('active-row');
+            }
+        }
+
+        function setLevel(level) {
+            currentLevel = level;
+
+            [btn90, btn95, btn99].forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + level).classList.add('active');
+
+            updateViz();
+        }
+
+        // Event listeners
+        sampleSlider.addEventListener('input', updateViz);
+        seSlider.addEventListener('input', updateViz);
+        btn90.addEventListener('click', () => setLevel(90));
+        btn95.addEventListener('click', () => setLevel(95));
+        btn99.addEventListener('click', () => setLevel(99));
+
+        // Initial render
+        setLevel(95);
+
+        // Practice Quiz
+        var quizQuestions = [
+            {
+                question: "A 95% confidence interval for the average exam score is [72, 84]. What does this mean?",
+                options: [
+                    "95% of students scored between 72 and 84",
+                    "There is a 95% probability that the true average is between 72 and 84",
+                    "If we repeated this study many times, about 95% of the intervals we build would contain the true average",
+                    "The average score is exactly 78"
+                ],
+                correct: 2,
+                explanation: "A confidence interval is about the <em>process</em>, not one specific interval. If we repeated the study many times, about 95% of the intervals we construct would capture the true population average."
+            },
+            {
+                question: "What happens to the width of a confidence interval if you increase the sample size (ask more students)?",
+                options: [
+                    "It gets wider",
+                    "It gets narrower",
+                    "It stays the same",
+                    "It depends on the confidence level"
+                ],
+                correct: 1,
+                explanation: "More data means a more precise estimate. The standard error decreases as sample size increases, which makes the interval narrower. Try it with the slider above!"
+            },
+            {
+                question: "Which confidence level produces the widest interval: 90%, 95%, or 99%?",
+                options: [
+                    "90%",
+                    "95%",
+                    "99%",
+                    "They are all the same width"
+                ],
+                correct: 2,
+                explanation: "99% produces the widest interval. To be <em>more</em> confident that you've captured the true value, you need to cast a wider net. Check the Z* values in the table above &mdash; 2.576 is the largest!"
+            },
+            {
+                question: "A researcher calculates a 95% CI of [60, 90] and a 99% CI of [55, 95]. Both use the same data. Which statement is true?",
+                options: [
+                    "The 95% CI is better because it is more precise",
+                    "The 99% CI is better because it is more confident",
+                    "The 95% CI is more precise but less confident; the 99% CI is more confident but less precise",
+                    "Something went wrong &mdash; they should be the same width"
+                ],
+                correct: 2,
+                explanation: "This is the fundamental tradeoff! You can be more precise (narrower interval) or more confident (wider interval), but not both at the same time with the same data. The only way to get both is to collect more data."
+            },
+            {
+                question: "Two researchers study exam scores. Researcher A surveys 25 students and Researcher B surveys 200 students. Both build 95% CIs. Whose interval is likely narrower?",
+                options: [
+                    "Researcher A (25 students)",
+                    "Researcher B (200 students)",
+                    "They will be the same since both use 95%",
+                    "It is impossible to tell"
+                ],
+                correct: 1,
+                explanation: "Researcher B's interval will be narrower. With 200 students instead of 25, the standard error is much smaller, leading to a more precise estimate. Sample size is one of the most powerful ways to shrink a confidence interval."
+            }
+        ];
+
+        var quizIndex = 0;
+        var quizCorrectCount = 0;
+
+        function loadQuizQuestion() {
+            var q = quizQuestions[quizIndex];
+            document.getElementById('quizProgress').textContent = 'Question ' + (quizIndex + 1) + ' of ' + quizQuestions.length;
+            document.getElementById('quizQuestion').innerHTML = q.question;
+            document.getElementById('quizFeedback').className = 'quiz-feedback';
+            document.getElementById('quizFeedback').innerHTML = '';
+
+            var optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach(function(opt, i) {
+                var btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerHTML = opt;
+                btn.addEventListener('click', function() { handleAnswer(i); });
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selected) {
+            var q = quizQuestions[quizIndex];
+            var buttons = document.querySelectorAll('.quiz-option');
+            var feedback = document.getElementById('quizFeedback');
+
+            // Disable all buttons
+            buttons.forEach(function(btn) { btn.disabled = true; });
+
+            // Highlight correct and incorrect
+            buttons[q.correct].classList.add('correct');
+            if (selected !== q.correct) {
+                buttons[selected].classList.add('incorrect');
+                feedback.className = 'quiz-feedback show is-incorrect';
+                feedback.innerHTML = '<strong>Not quite.</strong> ' + q.explanation;
+            } else {
+                quizCorrectCount++;
+                feedback.className = 'quiz-feedback show is-correct';
+                feedback.innerHTML = '<strong>Correct!</strong> ' + q.explanation;
+
+                // Auto-advance after a delay on correct answer
+                setTimeout(function() {
+                    quizIndex++;
+                    if (quizIndex < quizQuestions.length) {
+                        loadQuizQuestion();
+                    } else {
+                        showQuizComplete();
+                    }
+                }, 2000);
+            }
+
+            // If incorrect, let them see the answer, then advance on next click anywhere in quiz
+            if (selected !== q.correct) {
+                var advanceHandler = function() {
+                    quizIndex++;
+                    if (quizIndex < quizQuestions.length) {
+                        loadQuizQuestion();
+                    } else {
+                        showQuizComplete();
+                    }
+                    document.getElementById('quizSection').removeEventListener('click', advanceHandler);
+                };
+                setTimeout(function() {
+                    document.getElementById('quizSection').addEventListener('click', advanceHandler);
+                    feedback.innerHTML += '<br><em style="font-size:0.72rem;color:var(--text-muted);">Click anywhere to continue.</em>';
+                }, 500);
+            }
+        }
+
+        function showQuizComplete() {
+            document.getElementById('quizProgress').style.display = 'none';
+            document.getElementById('quizQuestion').style.display = 'none';
+            document.getElementById('quizOptions').style.display = 'none';
+            document.getElementById('quizFeedback').style.display = 'none';
+            var complete = document.getElementById('quizComplete');
+            complete.style.display = 'block';
+            document.getElementById('quizScore').textContent = quizCorrectCount;
+        }
+
+        loadQuizQuestion();
+
+        // Formula tooltips
+        var currentTip = null;
+        function showFormulaTip(type) {
+            var tips = {point: 'tipPoint', z: 'tipZ', se: 'tipSE'};
+            var spans = {point: 'formula-point', z: 'formula-z', se: 'formula-se'};
+
+            // Hide all tips and remove active states
+            Object.values(tips).forEach(function(id) {
+                document.getElementById(id).classList.remove('show');
+            });
+            document.querySelectorAll('.formula-point, .formula-z, .formula-se').forEach(function(el) {
+                el.classList.remove('active');
+            });
+
+            // Toggle: if clicking same one, just close
+            if (currentTip === type) {
+                currentTip = null;
+                return;
+            }
+
+            // Show selected tip and highlight
+            document.getElementById(tips[type]).classList.add('show');
+            document.querySelectorAll('.' + spans[type]).forEach(function(el) {
+                el.classList.add('active');
+            });
+            currentTip = type;
+        }
+    </script>
+</body>
+</html>
