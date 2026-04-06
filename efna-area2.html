@@ -246,7 +246,7 @@
 
     <div class="container">
         <h1>EFNA Area 2: Taxation by State</h1>
-        <p class="subtitle">Area 2 — Taxation | All-Government Index, 2022 | Source: Fraser Institute</p>
+        <p class="subtitle">Area 2 — Taxation | Subnational Index, 2023 | Source: Fraser Institute, EFNA 2025</p>
         <div class="map-nav">
             <a href="efna-map.html">Overall</a>
             <a href="efna-area1.html">Area 1: Gov. Spending</a>
@@ -316,8 +316,8 @@
             <div class="legend-title">EFNA Score</div>
             <div class="legend-bar" id="legend-bar"></div>
             <div class="legend-labels">
-                <span>5.41 (Lower Freedom)</span>
-                <span>7.60 (Higher Freedom)</span>
+                <span>2.98 (Lower Freedom)</span>
+                <span>8.01 (Higher Freedom)</span>
             </div>
         </div>
     </div>
@@ -332,10 +332,10 @@
     </footer>
 
     <script>
-        const efnaData = {"MO":{"name":"Missouri","score":6.86},"MT":{"name":"Montana","score":7.4},"NC":{"name":"North Carolina","score":7.31},"MN":{"name":"Minnesota","score":6.1},"NM":{"name":"New Mexico","score":7.24},"KY":{"name":"Kentucky","score":7.09},"ND":{"name":"North Dakota","score":7.4},"MI":{"name":"Michigan","score":7.24},"MD":{"name":"Maryland","score":6.9},"NH":{"name":"New Hampshire","score":7.46},"ME":{"name":"Maine","score":6.91},"NE":{"name":"Nebraska","score":6.89},"NJ":{"name":"New Jersey","score":6.15},"LA":{"name":"Louisiana","score":7.02},"AR":{"name":"Arkansas","score":6.99},"NV":{"name":"Nevada","score":6.87},"MA":{"name":"Massachusetts","score":6.35},"WI":{"name":"Wisconsin","score":7.06},"CO":{"name":"Colorado","score":7.14},"CA":{"name":"California","score":6.22},"OR":{"name":"Oregon","score":7.13},"ID":{"name":"Idaho","score":7.32},"PA":{"name":"Pennsylvania","score":6.99},"IA":{"name":"Iowa","score":7.01},"GA":{"name":"Georgia","score":7.0},"AZ":{"name":"Arizona","score":7.37},"RI":{"name":"Rhode Island","score":6.41},"HI":{"name":"Hawaii","score":6.41},"IN":{"name":"Indiana","score":7.21},"OH":{"name":"Ohio","score":6.58},"OK":{"name":"Oklahoma","score":7.48},"IL":{"name":"Illinois","score":6.45},"KS":{"name":"Kansas","score":6.91},"NY":{"name":"New York","score":5.65},"AL":{"name":"Alabama","score":7.59},"WA":{"name":"Washington","score":6.7},"DE":{"name":"Delaware","score":5.41},"TN":{"name":"Tennessee","score":7.16},"VA":{"name":"Virginia","score":7.07},"UT":{"name":"Utah","score":7.24},"WV":{"name":"West Virginia","score":7.6},"WY":{"name":"Wyoming","score":7.35},"AK":{"name":"Alaska","score":6.79},"MS":{"name":"Mississippi","score":7.46},"FL":{"name":"Florida","score":7.1},"SD":{"name":"South Dakota","score":7.2},"TX":{"name":"Texas","score":6.99},"CT":{"name":"Connecticut","score":6.71},"SC":{"name":"South Carolina","score":7.37},"VT":{"name":"Vermont","score":6.77}};
+        const efnaData = {"AL":{"name":"Alabama","score":6.9},"AK":{"name":"Alaska","score":6.81},"AZ":{"name":"Arizona","score":7.52},"AR":{"name":"Arkansas","score":6.61},"CA":{"name":"California","score":4.52},"CO":{"name":"Colorado","score":7.18},"CT":{"name":"Connecticut","score":6.11},"DE":{"name":"Delaware","score":4.71},"FL":{"name":"Florida","score":7.87},"GA":{"name":"Georgia","score":6.68},"HI":{"name":"Hawaii","score":3.47},"ID":{"name":"Idaho","score":6.9},"IL":{"name":"Illinois","score":5.31},"IN":{"name":"Indiana","score":6.58},"IA":{"name":"Iowa","score":6.35},"KS":{"name":"Kansas","score":6.31},"KY":{"name":"Kentucky","score":6.36},"LA":{"name":"Louisiana","score":6.47},"ME":{"name":"Maine","score":5.42},"MD":{"name":"Maryland","score":5.85},"MA":{"name":"Massachusetts","score":5.82},"MI":{"name":"Michigan","score":6.87},"MN":{"name":"Minnesota","score":5.36},"MS":{"name":"Mississippi","score":6.2},"MO":{"name":"Missouri","score":7.27},"MT":{"name":"Montana","score":6.78},"NE":{"name":"Nebraska","score":6.17},"NV":{"name":"Nevada","score":6.71},"NH":{"name":"New Hampshire","score":7.92},"NJ":{"name":"New Jersey","score":4.77},"NM":{"name":"New Mexico","score":5.55},"NY":{"name":"New York","score":2.98},"NC":{"name":"North Carolina","score":6.82},"ND":{"name":"North Dakota","score":7.71},"OH":{"name":"Ohio","score":6.75},"OK":{"name":"Oklahoma","score":7.18},"OR":{"name":"Oregon","score":5.1},"PA":{"name":"Pennsylvania","score":6.37},"RI":{"name":"Rhode Island","score":5.65},"SC":{"name":"South Carolina","score":6.44},"SD":{"name":"South Dakota","score":8.01},"TN":{"name":"Tennessee","score":7.88},"TX":{"name":"Texas","score":7.52},"UT":{"name":"Utah","score":6.29},"VT":{"name":"Vermont","score":4.56},"VA":{"name":"Virginia","score":6.29},"WA":{"name":"Washington","score":6.68},"WV":{"name":"West Virginia","score":6.1},"WI":{"name":"Wisconsin","score":6.28},"WY":{"name":"Wyoming","score":7.54}};
 
-        const minScore = 5.41;
-        const maxScore = 7.60;
+        const minScore = 2.98;
+        const maxScore = 8.01;
         const range = maxScore - minScore;
 
         function getColor(score) {
